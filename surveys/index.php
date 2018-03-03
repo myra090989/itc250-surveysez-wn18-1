@@ -46,7 +46,7 @@ if($result->rowCount() > 0)
 	{# pull data from associative array
 	   echo '<tr class="table-danger">';
 	   echo '<td>' . $row['DateAdded'] . '</td>';
-	   echo '<td><a href="surveyview.php?id='.$row['SurveyID'].'">' . $row['Title'] . '</a></td>';
+	   echo '<td><a href="survey_view.php?id='.$row['SurveyID'].'">' . $row['Title'] . '</a></td>';
 	   echo '<td>' . $row['AdminName'] . '</td>';
 	   echo '</tr>';
 	}
