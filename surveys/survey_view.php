@@ -21,11 +21,15 @@ if(isset($_GET['id']) && (int)$_GET['id'] > 0){#proper data must be on querystri
 }else{
 	myRedirect(VIRTUAL_PATH . "surveys/index.php");
 }
+$mySurvey = new Survey($myID);
 
+
+//dumpDie($mySurvey);
 //sql statement to select individual item
-$sql = "select Title, Description, DateAdded from wn18_surveys where SurveyID = " . $myID;
+//$sql = "select Title, Description, DateAdded from wn18_surveys where SurveyID = " . $myID;
 //---end config area --------------------------------------------------
 
+/*
 $foundRecord = FALSE; # Will change to true, if record found!
    
 # connection comes first in mysqli (improved) function
@@ -36,17 +40,20 @@ if(mysqli_num_rows($result) > 0)
 	   $foundRecord = true;	
 	   while ($row = mysqli_fetch_assoc($result))
 	   {
-			$Title = dbOut($row['Title']);
-			$Description = dbOut($row['Description']);
-			$DateAdded = dbOut($row['DateAdded']);
 			
-	   }
+            
+            $Title = dbOut($row['Title']);
+			$Description = dbOut($row['Description']);
+			$DateAdded = dbOut($row['DateAdded']); 
+       }
 }
-@mysqli_free_result($result); # We're done with the data!
 
-if($foundRecord)
+@mysqli_free_result($result); # We're done with the data!
+*/
+
+if($mySurvey->IsValid)
 {#only load data if record found
-	$config->titleTag = $Title; #overwrite PageTitle with Muffin info!
+	$config->titleTag = $mySurvey->Title; #overwrite PageTitle with Muffin info!
 }
 /*
 $config->metaDescription = 'Web Database ITC281 class website.'; #Fills <meta> tags.
@@ -64,14 +71,13 @@ $config->nav1 = array("page.php"=>"New Page!") + $config->nav1; #add a new page 
 
 get_header(); #defaults to theme header or header_inc.php
 ?>
-<h3 align="center"><?=$Title;?></h3>
 <?php
-if($foundRecord)
+if($mySurvey->IsValid)
 {#records exist - show survey!
-echo'
-<p>Title: title goes here<p>
-<p>Description: description goes here<p>
-<p>DateAdded: date added goes here<p>
+echo '
+<h3 align="center"> ' . $mySurvey->Title . '</h3>
+<p>Description ' . $mySurvey->Description . '<p>
+<p>DateAdded ' . $mySurvey->DateAdded . '<p>
 ';
 }else{//no such survey!
  echo '   
@@ -80,4 +86,41 @@ echo'
 }
 
 get_footer(); #defaults to theme footer or footer_inc.php
-?>
+
+class Survey
+{
+  public $SurveyID = 0; 
+  public $Title = '';  
+  public $Description = ''; 
+  public $DateAdded = ''; 
+  public $IsValid = false; 
+
+
+    public function __construct($myID)
+    {
+        //cast the data to an integer
+        $this->SurveyId = (int)$myID;
+        $sql = "select Title, Description, DateAdded from wn18_surveys where SurveyID = " . 
+        $this->SurveyID;
+        
+# connection comes first in mysqli (improved) function
+$result = mysqli_query(IDB::conn(),$sql) or die(trigger_error(mysqli_error(IDB::conn()), E_USER_ERROR));
+
+if(mysqli_num_rows($result) > 0)
+{#records exist - process 
+	   $this->IsValid = true;	
+	   while ($row = mysqli_fetch_assoc($result))
+	   {
+			$this->Title = dbOut($row['Title']);
+			$this->Description = dbOut($row['Description']);
+			$this->DateAdded = dbOut($row['DateAdded']);
+			
+	   }
+}
+@mysqli_free_result($result); # We're done with the data!
+
+    
+    
+    }//end Survey constructor
+    
+} //end survey class
